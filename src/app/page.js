@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import './animations.css';
+import Footer from '../components/Footer';
 
 export default function Home() {
   const router = useRouter();
@@ -22,14 +24,14 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header/Navigation */}
-      <nav className="flex items-center justify-between px-8 py-4">
+      <nav className="flex items-center justify-between px-8 py-4 fade-in">
         <div className="flex items-center">
           <Link href="/" className="mr-8">
-            <div className="flex items-center justify-center h-12 w-12 bg-white text-black rounded-full font-bold text-xl">
+            <div className="flex items-center justify-center h-12 w-12 bg-white text-black rounded-full font-bold text-xl hover-scale">
               RT
             </div>
           </Link>
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex space-x-8 stagger-fade-in">
             <Link href="/search" className="text-white hover:text-gray-300">All</Link>
             <Link href="/search/womens-collection" className="text-white hover:text-gray-300">Women</Link>
             <Link href="/search/mens-collection" className="text-white hover:text-gray-300">Men</Link>
@@ -85,24 +87,24 @@ export default function Home() {
       {/* Hero Section */}
       <main className="px-8 py-16 md:py-24 max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+          <div className="slide-in">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 glow-text">
               Discover the Latest
               <br />
-              Fashion Trends
+              <span className="text-gradient">Fashion Trends</span>
             </h1>
-            <p className="text-xl mb-8">
+            <p className="text-xl mb-8 text-gray-300">
               Explore our curated collections of stylish apparel and
               accessories for every occasion.
             </p>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 stagger-fade-in">
               <Link href="/search/womens-collection">
-                <button className="bg-white text-black px-6 py-3 rounded hover:bg-gray-200 transition">
+                <button className="bg-white text-black px-6 py-3 rounded hover:bg-gray-200 transition hover-scale">
                   Shop Women
                 </button>
               </Link>
               <Link href="/search/mens-collection">
-                <button className="bg-transparent border border-white text-white px-6 py-3 rounded hover:bg-white/10 transition">
+                <button className="bg-transparent border border-white text-white px-6 py-3 rounded hover:bg-white/10 transition hover-scale">
                   Shop Men
                 </button>
               </Link>
@@ -113,11 +115,10 @@ export default function Home() {
               </Link> */}
             </div>
           </div>
-          <div className="hidden md:block">
-            {/* Featured image placeholder - replace with your actual image */}
-            <div className="bg-pink-500 rounded-lg p-8 h-96 w-full relative overflow-hidden">
+          <div className="hidden md:block fade-in">
+            <div className="gradient-bg rounded-lg p-8 h-96 w-full relative overflow-hidden floating">
               <div className="absolute inset-0 flex items-center justify-center">
-                <h2 className="text-8xl font-bold text-green-800">FASHION</h2>
+                <h2 className="text-8xl font-bold text-white glow-text">FASHION</h2>
               </div>
             </div>
           </div>
@@ -125,13 +126,104 @@ export default function Home() {
       </main>
 
       {/* Featured Collection Section - mobile only */}
-      <div className="md:hidden mt-8 px-8">
-        <div className="bg-pink-500 rounded-lg p-8 h-64 w-full relative overflow-hidden">
+      <div className="md:hidden mt-8 px-8 fade-in">
+        <div className="gradient-bg rounded-lg p-8 h-64 w-full relative overflow-hidden">
           <div className="absolute inset-0 flex items-center justify-center">
-            <h2 className="text-6xl font-bold text-green-800">FASHION</h2>
+            <h2 className="text-6xl font-bold text-white glow-text">FASHION</h2>
           </div>
         </div>
       </div>
+
+      {/* Collections Section */}
+      <section className="px-8 py-16 max-w-7xl mx-auto">
+        <h2 className="text-3xl font-bold mb-8 slide-in">Featured Collections</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-fade-in">
+          <Link href="/search/womens-collection" className="group">
+            <div className="relative h-96 rounded-lg overflow-hidden hover-scale">
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 z-10" />
+              <div className="absolute inset-0 bg-[url('/images/women-apparel.PNG')] bg-cover bg-center group-hover:scale-105 transition-transform duration-300" />
+              <div className="absolute bottom-0 left-0 p-6 z-20">
+                <h3 className="text-2xl font-bold text-white mb-2 glow-text">Women's Collection</h3>
+                <p className="text-white/80">Discover the latest trends</p>
+              </div>
+            </div>
+          </Link>
+          <Link href="/search/mens-collection" className="group">
+            <div className="relative h-96 rounded-lg overflow-hidden hover-scale">
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 z-10" />
+              <div className="absolute inset-0 bg-[url('/images/rahul.jpg')] bg-cover bg-center group-hover:scale-105 transition-transform duration-300" />
+              <div className="absolute bottom-0 left-0 p-6 z-20">
+                <h3 className="text-2xl font-bold text-white mb-2 glow-text">Men's Collection</h3>
+                <p className="text-white/80">Elevate your style</p>
+              </div>
+            </div>
+          </Link>
+          <Link href="/search/new-arrivals" className="group">
+            <div className="relative h-96 rounded-lg overflow-hidden hover-scale">
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 z-10" />
+              <div className="absolute inset-0 bg-[url('/images/new-arrivals.jpg')] bg-cover bg-center group-hover:scale-105 transition-transform duration-300" />
+              <div className="absolute bottom-0 left-0 p-6 z-20">
+                <h3 className="text-2xl font-bold text-white mb-2 glow-text">New Arrivals</h3>
+                <p className="text-white/80">Shop the latest styles</p>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* Animated Ad Banner */}
+      <div className="relative overflow-hidden gradient-bg py-8">
+        <div className="animate-marquee whitespace-nowrap">
+          <span className="text-2xl font-bold text-white mx-4 glow-text">✨ Free Shipping on Orders Over $50 ✨</span>
+          <span className="text-2xl font-bold text-white mx-4 glow-text">🎉 30% Off New Arrivals 🎉</span>
+          <span className="text-2xl font-bold text-white mx-4 glow-text">💫 Limited Time Offers 💫</span>
+        </div>
+      </div>
+
+      {/* Seasonal Collection */}
+      <section className="px-8 py-16 max-w-7xl mx-auto">
+        <h2 className="text-3xl font-bold mb-8 slide-in">Seasonal Collection</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 stagger-fade-in">
+          <div className="relative h-[500px] rounded-lg overflow-hidden group hover-scale">
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 z-10" />
+            <div className="absolute inset-0 bg-[url('/images/summer-collection.jpg')] bg-cover bg-center group-hover:scale-105 transition-transform duration-300" />
+            <div className="absolute bottom-0 left-0 p-8 z-20">
+              <h3 className="text-4xl font-bold text-white mb-4 glow-text">Summer Collection</h3>
+              <p className="text-white/80 text-lg mb-6">Light and breezy styles for the season</p>
+              <Link href="/search/summer-collection">
+                <button className="bg-white text-black px-6 py-3 rounded hover:bg-gray-200 transition hover-scale">
+                  Shop Now
+                </button>
+              </Link>
+            </div>
+          </div>
+          <div className="relative h-[500px] rounded-lg overflow-hidden group hover-scale">
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 z-10" />
+            <div className="absolute inset-0 bg-[url('/images/spring-collection.jpg')] bg-cover bg-center group-hover:scale-105 transition-transform duration-300" />
+            <div className="absolute bottom-0 left-0 p-8 z-20">
+              <h3 className="text-4xl font-bold text-white mb-4 glow-text">Spring Collection</h3>
+              <p className="text-white/80 text-lg mb-6">Fresh styles for the new season</p>
+              <Link href="/search/spring-collection">
+                <button className="bg-white text-black px-6 py-3 rounded hover:bg-gray-200 transition hover-scale">
+                  Shop Now
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
+
+// Add this to your globals.css
+// @keyframes marquee {
+//   0% { transform: translateX(100%); }
+//   100% { transform: translateX(-100%); }
+// }
+// .animate-marquee {
+//   animation: marquee 20s linear infinite;
+// }

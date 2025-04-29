@@ -1,103 +1,137 @@
+"use client"
+import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+  const { cartCount } = useCart();
+  const { isAuthenticated } = useAuth();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      {/* Header/Navigation */}
+      <nav className="flex items-center justify-between px-8 py-4">
+        <div className="flex items-center">
+          <Link href="/" className="mr-8">
+            <div className="flex items-center justify-center h-12 w-12 bg-white text-black rounded-full font-bold text-xl">
+              RT
+            </div>
+          </Link>
+          <div className="hidden md:flex space-x-8">
+            <Link href="/search" className="text-white hover:text-gray-300">All</Link>
+            <Link href="/search/womens-collection" className="text-white hover:text-gray-300">Women</Link>
+            <Link href="/search/mens-collection" className="text-white hover:text-gray-300">Men</Link>
+            {/* <Link href="/search/kids" className="text-white hover:text-gray-300">Kids</Link> */}
+          </div>
+        </div>
+        
+        <div className="flex items-center">
+          <form onSubmit={handleSearch} className="relative mr-4">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search for products..."
+              className="bg-gray-900 text-white px-4 py-2 rounded-full w-64 focus:outline-none"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <button type="submit" className="absolute right-3 top-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+          </form>
+
+          {isAuthenticated ? (
+            <Link href="/account" className="p-2 rounded-full hover:bg-gray-800 mr-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </Link>
+          ) : (
+            <Link href="/login" className="p-2 rounded-full hover:bg-gray-800 mr-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+              </svg>
+            </Link>
+          )}
+          
+          <Link href="/cart">
+            <div className="p-2 rounded-full hover:bg-gray-800 relative">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+              {cartCount > 0 && (
+                <div className="absolute -top-1 -right-1 bg-white text-black text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartCount}
+                </div>
+              )}
+            </div>
+          </Link>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <main className="px-8 py-16 md:py-24 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+              Discover the Latest
+              <br />
+              Fashion Trends
+            </h1>
+            <p className="text-xl mb-8">
+              Explore our curated collections of stylish apparel and
+              accessories for every occasion.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Link href="/search/womens-collection">
+                <button className="bg-white text-black px-6 py-3 rounded hover:bg-gray-200 transition">
+                  Shop Women
+                </button>
+              </Link>
+              <Link href="/search/mens-collection">
+                <button className="bg-transparent border border-white text-white px-6 py-3 rounded hover:bg-white/10 transition">
+                  Shop Men
+                </button>
+              </Link>
+              {/* <Link href="/search/sales-collection">
+                <button className="bg-transparent border border-white text-white px-6 py-3 rounded hover:bg-white/10 transition">
+                  Shop Sales
+                </button>
+              </Link> */}
+            </div>
+          </div>
+          <div className="hidden md:block">
+            {/* Featured image placeholder - replace with your actual image */}
+            <div className="bg-pink-500 rounded-lg p-8 h-96 w-full relative overflow-hidden">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <h2 className="text-8xl font-bold text-green-800">FASHION</h2>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+      {/* Featured Collection Section - mobile only */}
+      <div className="md:hidden mt-8 px-8">
+        <div className="bg-pink-500 rounded-lg p-8 h-64 w-full relative overflow-hidden">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <h2 className="text-6xl font-bold text-green-800">FASHION</h2>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -75,11 +75,23 @@ export function AuthProvider({ children }) {
   // Shopify Storefront API fetch function
   const shopifyFetch = async ({ query, variables }) => {
     try {
+      // Validate store domain
+      const storeDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+      if (!storeDomain) {
+        throw new Error('Shopify store domain is not configured');
+      }
+
+      // Basic validation for myshopify.com domain
+      if (!storeDomain.endsWith('.myshopify.com')) {
+        console.error('Invalid Shopify store domain format:', storeDomain);
+        throw new Error('Invalid Shopify store domain format');
+      }
+
       // Enhanced debug log
       console.log('Shopify API Debug:', {
-        domain: process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN,
+        domain: storeDomain,
         hasToken: !!process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN,
-        url: `https://${process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN}/api/2023-10/graphql.json`,
+        url: `https://${storeDomain}/api/2023-10/graphql.json`,
         environment: process.env.NODE_ENV,
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +100,7 @@ export function AuthProvider({ children }) {
       });
 
       const response = await fetch(
-        `https://${process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN}/api/2023-10/graphql.json`,
+        `https://${storeDomain}/api/2023-10/graphql.json`,
         {
           method: 'POST',
           headers: {

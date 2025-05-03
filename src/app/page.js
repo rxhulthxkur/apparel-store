@@ -151,7 +151,7 @@ export default function Home() {
           <Link href="/search/mens-collection" className="group">
             <div className="relative h-96 rounded-lg overflow-hidden hover-scale">
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 z-10" />
-              <div className="absolute inset-0 bg-[url('/images/rahul.jpg')] bg-cover bg-center group-hover:scale-105 transition-transform duration-300" />
+              <div className="absolute inset-0 bg-[url('/images/rahul.JPG')] bg-cover bg-center group-hover:scale-105 transition-transform duration-300" />
               <div className="absolute bottom-0 left-0 p-6 z-20">
                 <h3 className="text-2xl font-bold text-white mb-2 glow-text">Men's Collection</h3>
                 <p className="text-white/80">Elevate your style</p>

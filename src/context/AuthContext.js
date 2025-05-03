@@ -75,11 +75,16 @@ export function AuthProvider({ children }) {
   // Shopify Storefront API fetch function
   const shopifyFetch = async ({ query, variables }) => {
     try {
-      // Debug log - remove after fixing
+      // Enhanced debug log
       console.log('Shopify API Debug:', {
         domain: process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN,
         hasToken: !!process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN,
-        url: `https://${process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN}/api/2023-10/graphql.json`
+        url: `https://${process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN}/api/2023-10/graphql.json`,
+        environment: process.env.NODE_ENV,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Storefront-Access-Token': process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN ? 'Token present' : 'Token missing'
+        }
       });
 
       const response = await fetch(
@@ -94,9 +99,17 @@ export function AuthProvider({ children }) {
         }
       );
 
+      // Log response details
+      console.log('Shopify API Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
       const { data, errors } = await response.json();
       
       if (errors) {
+        console.error('Shopify API Errors:', errors);
         throw new Error(errors[0].message);
       }
       

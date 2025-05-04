@@ -141,7 +141,7 @@ export default function Home() {
           <Link href="/search/womens-collection" className="group">
             <div className="relative h-96 rounded-lg overflow-hidden hover-scale">
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 z-10" />
-              <div className="absolute inset-0 bg-[url('/images/women-apparel.PNG')] bg-cover bg-center group-hover:scale-105 transition-transform duration-300" />
+              <div className="absolute inset-0 bg-[url('/images/women.jpg')] bg-cover bg-center group-hover:scale-105 transition-transform duration-300" />
               <div className="absolute bottom-0 left-0 p-6 z-20">
                 <h3 className="text-2xl font-bold text-white mb-2 glow-text">Women's Collection</h3>
                 <p className="text-white/80">Discover the latest trends</p>
@@ -161,7 +161,7 @@ export default function Home() {
           <Link href="/search/new-arrivals" className="group">
             <div className="relative h-96 rounded-lg overflow-hidden hover-scale">
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 z-10" />
-              <div className="absolute inset-0 bg-[url('/images/new-arrivals.jpg')] bg-cover bg-center group-hover:scale-105 transition-transform duration-300" />
+              <div className="absolute inset-0 bg-[url('/images/arrival.jpg')] bg-cover bg-center group-hover:scale-105 transition-transform duration-300" />
               <div className="absolute bottom-0 left-0 p-6 z-20">
                 <h3 className="text-2xl font-bold text-white mb-2 glow-text">New Arrivals</h3>
                 <p className="text-white/80">Shop the latest styles</p>
@@ -186,7 +186,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 stagger-fade-in">
           <div className="relative h-[500px] rounded-lg overflow-hidden group hover-scale">
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 z-10" />
-            <div className="absolute inset-0 bg-[url('/images/summer-collection.jpg')] bg-cover bg-center group-hover:scale-105 transition-transform duration-300" />
+            <div className="absolute inset-0 bg-[url('/images/summer.jpg')] bg-cover bg-center group-hover:scale-105 transition-transform duration-300" />
             <div className="absolute bottom-0 left-0 p-8 z-20">
               <h3 className="text-4xl font-bold text-white mb-4 glow-text">Summer Collection</h3>
               <p className="text-white/80 text-lg mb-6">Light and breezy styles for the season</p>
@@ -199,11 +199,11 @@ export default function Home() {
           </div>
           <div className="relative h-[500px] rounded-lg overflow-hidden group hover-scale">
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 z-10" />
-            <div className="absolute inset-0 bg-[url('/images/spring-collection.jpg')] bg-cover bg-center group-hover:scale-105 transition-transform duration-300" />
+            <div className="absolute inset-0 bg-[url('/images/winter.jpg')] bg-cover bg-center group-hover:scale-105 transition-transform duration-300" />
             <div className="absolute bottom-0 left-0 p-8 z-20">
-              <h3 className="text-4xl font-bold text-white mb-4 glow-text">Spring Collection</h3>
+              <h3 className="text-4xl font-bold text-white mb-4 glow-text">Winter Collection</h3>
               <p className="text-white/80 text-lg mb-6">Fresh styles for the new season</p>
-              <Link href="/search/spring-collection">
+              <Link href="/search/winter-collection">
                 <button className="bg-white text-black px-6 py-3 rounded hover:bg-gray-200 transition hover-scale">
                   Shop Now
                 </button>

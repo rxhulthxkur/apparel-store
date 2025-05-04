@@ -169,7 +169,7 @@ function CollectionContent() {
         <div className="flex items-center">
           <Link href="/" className="mr-8">
             <div className="flex items-center justify-center h-12 w-12 bg-white text-black rounded-full font-bold text-xl">
-              GJ
+              RT
             </div>
           </Link>
           <div className="hidden md:flex space-x-8">

@@ -84,10 +84,17 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <main className="px-8 py-16 md:py-24 max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="slide-in">
+      {/* Hero Section - Full Width Banner */}
+      <div className="relative h-[600px] w-full overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 bg-[url('/images/women.jpg')] bg-cover bg-center">
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
+        </div>
+        
+        {/* Text Content */}
+        <div className="absolute inset-0 flex items-center px-8 max-w-7xl mx-auto">
+          <div className="md:max-w-2xl slide-in">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 glow-text">
               Discover the Latest
               <br />
@@ -108,29 +115,13 @@ export default function Home() {
                   Shop Men
                 </button>
               </Link>
-              {/* <Link href="/search/sales-collection">
-                <button className="bg-transparent border border-white text-white px-6 py-3 rounded hover:bg-white/10 transition">
-                  Shop Sales
-                </button>
-              </Link> */}
             </div>
           </div>
-          <div className="hidden md:block fade-in">
-            <div className="gradient-bg rounded-lg p-8 h-96 w-full relative overflow-hidden floating">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <h2 className="text-8xl font-bold text-white glow-text">FASHION</h2>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      {/* Featured Collection Section - mobile only */}
-      <div className="md:hidden mt-8 px-8 fade-in">
-        <div className="gradient-bg rounded-lg p-8 h-64 w-full relative overflow-hidden">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <h2 className="text-6xl font-bold text-white glow-text">FASHION</h2>
-          </div>
+          
+          {/* Fashion Image/Text Overlay */}
+          {/* <div className="hidden md:flex items-center justify-center absolute right-20 top-1/2 -translate-y-1/2">
+            <h2 className="text-9xl font-bold text-white opacity-80 glow-text">FASHIONN</h2>
+          </div> */}
         </div>
       </div>
 

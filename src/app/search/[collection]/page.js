@@ -176,7 +176,7 @@ function CollectionContent() {
             <Link href="/search" className="text-white hover:text-gray-300">All</Link>
             <Link href="/search/womens-collection" className="text-white hover:text-gray-300">Women</Link>
             <Link href="/search/mens-collection" className="text-white hover:text-gray-300">Men</Link>
-            <Link href="/search/kids-collection" className="text-white hover:text-gray-300">Kids</Link>
+            {/* <Link href="/search/kids-collection" className="text-white hover:text-gray-300">Kids</Link> */}
           </div>
         </div>
         

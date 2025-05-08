@@ -18,12 +18,31 @@ function SearchContent() {
   const { cartCount, addToCart } = useCart();
   const { isAuthenticated } = useAuth();
   const [addingToCart, setAddingToCart] = useState(null);
+  
+  // Pagination state
+  const [pageInfo, setPageInfo] = useState({ hasNextPage: false, endCursor: null });
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  // Filter state
+  const [filters, setFilters] = useState({
+    sortBy: 'RELEVANCE'
+  });
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
     }
+  };
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentPage(1); // Reset to first page when filters change
+    setProducts([]); // Clear existing products when filters change
+  };
+
+  const handleLoadMore = () => {
+    setCurrentPage(prev => prev + 1);
   };
 
   const handleAddToCart = async (e, product) => {
@@ -67,12 +86,27 @@ function SearchContent() {
       try {
         setLoading(true);
         
-        // Construct the query for Shopify Storefront API
         const STOREFRONT_API_URL = `https://${process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN}/api/2023-10/graphql.json`;
         
         const searchQuery = `
-          query searchProducts($query: String!) {
-            products(first: 24, query: $query) {
+          query searchProducts(
+            $query: String,
+            $first: Int!,
+            $after: String,
+            $sortKey: ProductSortKeys,
+            $reverse: Boolean
+          ) {
+            products(
+              first: $first,
+              after: $after,
+              query: $query,
+              sortKey: $sortKey,
+              reverse: $reverse
+            ) {
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
               edges {
                 node {
                   id
@@ -99,6 +133,32 @@ function SearchContent() {
           }
         `;
 
+        // Determine sort key and reverse
+        let sortKey = 'RELEVANCE';
+        let reverse = false;
+
+        switch (filters.sortBy) {
+          case 'PRICE':
+            sortKey = 'PRICE';
+            reverse = false;
+            break;
+          case 'PRICE_REVERSE':
+            sortKey = 'PRICE';
+            reverse = true;
+            break;
+          case 'TITLE':
+            sortKey = 'TITLE';
+            reverse = false;
+            break;
+          case 'TITLE_REVERSE':
+            sortKey = 'TITLE';
+            reverse = true;
+            break;
+          default:
+            sortKey = 'RELEVANCE';
+            reverse = false;
+        }
+
         const response = await fetch(STOREFRONT_API_URL, {
           method: 'POST',
           headers: {
@@ -108,7 +168,11 @@ function SearchContent() {
           body: JSON.stringify({
             query: searchQuery,
             variables: {
-              query: query
+              query: query || null,
+              first: 24,
+              after: currentPage > 1 ? pageInfo.endCursor : null,
+              sortKey,
+              reverse
             }
           })
         });
@@ -123,8 +187,14 @@ function SearchContent() {
           throw new Error(data.errors[0].message);
         }
 
-        const fetchedProducts = data.data.products.edges.map(edge => edge.node);
-        setProducts(fetchedProducts);
+        const newProducts = data.data.products.edges.map(edge => edge.node);
+        setPageInfo(data.data.products.pageInfo);
+        
+        if (currentPage === 1) {
+          setProducts(newProducts);
+        } else {
+          setProducts(prev => [...prev, ...newProducts]);
+        }
       } catch (err) {
         console.error('Error fetching products:', err);
         setError(err.message);
@@ -134,7 +204,7 @@ function SearchContent() {
     }
 
     fetchProducts();
-  }, [query]);
+  }, [query, currentPage, filters]);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -143,14 +213,13 @@ function SearchContent() {
         <div className="flex items-center">
           <Link href="/" className="mr-8">
             <div className="flex items-center justify-center h-12 w-12 bg-white text-black rounded-full font-bold text-xl">
-              GJ
+              RT
             </div>
           </Link>
           <div className="hidden md:flex space-x-8">
             <Link href="/search" className="text-white hover:text-gray-300">All</Link>
             <Link href="/search/womens-collection" className="text-white hover:text-gray-300">Women</Link>
             <Link href="/search/mens-collection" className="text-white hover:text-gray-300">Men</Link>
-            <Link href="/search/kids-collection" className="text-white hover:text-gray-300">Kids</Link>
           </div>
         </div>
         
@@ -201,72 +270,117 @@ function SearchContent() {
 
       {/* Search Results */}
       <div className="max-w-7xl mx-auto px-8 py-12">
-        <h1 className="text-3xl font-bold mb-6">
-          {query ? `Search results for "${query}"` : 'All Products'}
-        </h1>
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Sort Options */}
+          <div className="w-full md:w-64">
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Sort By</h3>
+              <select
+                value={filters.sortBy}
+                onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                className="w-full bg-gray-900 text-white px-4 py-2 rounded-lg"
+              >
+                <option value="RELEVANCE">Relevance</option>
+                <option value="PRICE">Price: Low to High</option>
+                <option value="PRICE_REVERSE">Price: High to Low</option>
+                <option value="TITLE">Name: A to Z</option>
+                <option value="TITLE_REVERSE">Name: Z to A</option>
+              </select>
+            </div>
+          </div>
 
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
-          </div>
-        ) : error ? (
-          <div className="text-red-500 text-center py-8">
-            <p>Error: {error}</p>
-          </div>
-        ) : products.length === 0 ? (
-          <div className="text-center py-8">
-            <p>No products found. Try a different search term.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {products.map((product) => (
-              <Link href={`/products/${product.handle}`} key={product.id}>
-                <div className="bg-gray-900 rounded-lg overflow-hidden hover:transform hover:scale-105 transition-transform relative group">
-                  <div className="h-64 relative">
-                    {product.images.edges.length > 0 ? (
-                      <Image
-                        src={product.images.edges[0].node.url}
-                        alt={product.images.edges[0].node.altText || product.title}
-                        fill
-                        style={{ objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                        <p>No image available</p>
+          {/* Products Grid */}
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold mb-6">
+              {query ? `Search results for "${query}"` : 'All Products'}
+            </h1>
+
+            {loading && currentPage === 1 ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+              </div>
+            ) : error ? (
+              <div className="text-red-500 text-center py-8">
+                <p>Error: {error}</p>
+              </div>
+            ) : products.length === 0 ? (
+              <div className="text-center py-8">
+                <p>No products found. Try a different search term.</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                  {products.map((product) => (
+                    <Link href={`/products/${product.handle}`} key={product.id}>
+                      <div className="bg-gray-900 rounded-lg overflow-hidden hover:transform hover:scale-105 transition-transform relative group">
+                        <div className="h-64 relative">
+                          {product.images.edges.length > 0 ? (
+                            <Image
+                              src={product.images.edges[0].node.url}
+                              alt={product.images.edges[0].node.altText || product.title}
+                              fill
+                              style={{ objectFit: 'cover' }}
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                              <p>No image available</p>
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <button 
+                              onClick={(e) => handleAddToCart(e, product)}
+                              className="bg-white text-black py-2 px-4 rounded-full font-medium hover:bg-gray-200 transition transform -translate-y-2 group-hover:translate-y-0"
+                              disabled={addingToCart === product.id}
+                            >
+                              {addingToCart === product.id ? (
+                                <span className="flex items-center">
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black mr-2"></div>
+                                  Adding...
+                                </span>
+                              ) : (
+                                'Add to Cart'
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                        <div className="p-4">
+                          <h3 className="text-lg font-semibold">{product.title}</h3>
+                          <p className="text-gray-400 mt-1 line-clamp-2">{product.description}</p>
+                          <p className="text-white font-bold mt-2">
+                            {new Intl.NumberFormat('en-US', {
+                              style: 'currency',
+                              currency: product.priceRange.minVariantPrice.currencyCode,
+                            }).format(product.priceRange.minVariantPrice.amount)}
+                          </p>
+                        </div>
                       </div>
-                    )}
-                    <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <button 
-                        onClick={(e) => handleAddToCart(e, product)}
-                        className="bg-white text-black py-2 px-4 rounded-full font-medium hover:bg-gray-200 transition transform -translate-y-2 group-hover:translate-y-0"
-                        disabled={addingToCart === product.id}
-                      >
-                        {addingToCart === product.id ? (
-                          <span className="flex items-center">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black mr-2"></div>
-                            Adding...
-                          </span>
-                        ) : (
-                          'Add to Cart'
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold">{product.title}</h3>
-                    <p className="text-gray-400 mt-1 line-clamp-2">{product.description}</p>
-                    <p className="text-white font-bold mt-2">
-                      {new Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency: product.priceRange.minVariantPrice.currencyCode,
-                      }).format(product.priceRange.minVariantPrice.amount)}
-                    </p>
-                  </div>
+                    </Link>
+                  ))}
                 </div>
-              </Link>
-            ))}
+
+                {/* Load More Button */}
+                {pageInfo.hasNextPage && (
+                  <div className="mt-8 text-center">
+                    <button
+                      onClick={handleLoadMore}
+                      disabled={loading}
+                      className="bg-white text-black px-6 py-3 rounded-full font-medium hover:bg-gray-200 transition disabled:opacity-50"
+                    >
+                      {loading ? (
+                        <span className="flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-2"></div>
+                          Loading...
+                        </span>
+                      ) : (
+                        'Load More Products'
+                      )}
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

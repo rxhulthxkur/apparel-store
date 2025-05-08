@@ -10,7 +10,61 @@ export default function AccountPage() {
   const { customer, loading, logout, isAuthenticated } = useAuth();
   const { clearCart } = useCart();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [hasOrders, setHasOrders] = useState(false);
   const router = useRouter();
+
+  // Check if customer has orders
+  useEffect(() => {
+    async function checkOrders() {
+      if (!isAuthenticated) return;
+
+      try {
+        const customerAccessToken = localStorage.getItem('shopify_customer_token');
+        if (!customerAccessToken) return;
+
+        const STOREFRONT_API_URL = `https://${process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN}/api/2023-10/graphql.json`;
+        
+        const ordersQuery = `
+          query getCustomerOrders($customerAccessToken: String!) {
+            customer(customerAccessToken: $customerAccessToken) {
+              orders(first: 1) {
+                edges {
+                  node {
+                    id
+                  }
+                }
+              }
+            }
+          }
+        `;
+
+        const response = await fetch(STOREFRONT_API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Storefront-Access-Token': process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN
+          },
+          body: JSON.stringify({
+            query: ordersQuery,
+            variables: {
+              customerAccessToken
+            }
+          })
+        });
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+        if (data.errors) return;
+
+        setHasOrders(data.data.customer.orders.edges.length > 0);
+      } catch (err) {
+        console.error('Error checking orders:', err);
+      }
+    }
+
+    checkOrders();
+  }, [isAuthenticated]);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -131,12 +185,25 @@ export default function AccountPage() {
 
           <div className="mt-8 space-y-4">
             <h2 className="text-xl font-semibold mb-4 border-b border-gray-800 pb-2">Order History</h2>
-            <p className="text-gray-400">You haven't placed any orders yet.</p>
-            <Link href="/search">
-              <button className="bg-white text-black px-4 py-2 rounded hover:bg-gray-200 transition">
-                Start Shopping
-              </button>
-            </Link>
+            {hasOrders ? (
+              <div className="space-y-4">
+                <p className="text-gray-400">You have placed orders in the past.</p>
+                <Link href="/account/orders">
+                  <button className="bg-white text-black px-4 py-2 rounded hover:bg-gray-200 transition">
+                    View Order History
+                  </button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-gray-400">You haven't placed any orders yet.</p>
+                <Link href="/search">
+                  <button className="bg-white text-black px-4 py-2 rounded hover:bg-gray-200 transition">
+                    Start Shopping
+                  </button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>

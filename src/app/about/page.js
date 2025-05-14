@@ -42,7 +42,7 @@ export default function AboutPage() {
             <div className="slide-in">
               <h2 className="text-3xl font-bold mb-6 text-gradient">Our Story</h2>
               <p className="text-gray-300 mb-4">
-                Founded in 2020, RT Fashion emerged from a vision to revolutionize the online fashion retail experience. 
+                Founded in 2025, RT Fashion emerged from a vision to revolutionize the online fashion retail experience. 
                 We believe that style should be accessible, sustainable, and personal.
               </p>
               <p className="text-gray-300 mb-4">
@@ -57,7 +57,7 @@ export default function AboutPage() {
             <div className="fade-in">
               <div className="gradient-bg rounded-lg p-8 h-[400px] relative overflow-hidden">
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <h3 className="text-6xl font-bold text-white glow-text">EST. 2020</h3>
+                  <h3 className="text-6xl font-bold text-white glow-text">EST. 2025</h3>
                 </div>
               </div>
             </div>
@@ -95,13 +95,61 @@ export default function AboutPage() {
             <div className="text-center p-6 hover-scale">
               <div className="h-16 w-16 mx-auto mb-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
                 <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               </div>
               <h3 className="text-xl font-bold mb-4">Community</h3>
               <p className="text-gray-400">
-                Building meaningful connections with our customers and partners.
+                Building a global community of fashion enthusiasts and trendsetters.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Team Section */}
+      <section className="py-16 px-8">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-bold mb-12 text-center text-gradient">Our Team</h2>
+          <div className="grid md:grid-cols-3 gap-8 stagger-fade-in">
+            <div className="text-center">
+              <div className="h-64 w-64 mx-auto mb-6 rounded-full overflow-hidden">
+                <Image
+                  src="/images/team1.jpg"
+                  alt="Team Member"
+                  width={256}
+                  height={256}
+                  className="object-cover"
+                />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Rahul Thakur</h3>
+              <p className="text-gray-400">Founder & CEO</p>
+            </div>
+            <div className="text-center">
+              <div className="h-64 w-64 mx-auto mb-6 rounded-full overflow-hidden">
+                <Image
+                  src="/images/team2.jpg"
+                  alt="Team Member"
+                  width={256}
+                  height={256}
+                  className="object-cover"
+                />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Shubham Thakur</h3>
+              <p className="text-gray-400">Creative Director</p>
+            </div>
+            <div className="text-center">
+              <div className="h-64 w-64 mx-auto mb-6 rounded-full overflow-hidden">
+                <Image
+                  src="/images/team3.jpg"
+                  alt="Team Member"
+                  width={256}
+                  height={256}
+                  className="object-cover"
+                />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Shivam Thakur</h3>
+              <p className="text-gray-400">Head of Design</p>
             </div>
           </div>
         </div>

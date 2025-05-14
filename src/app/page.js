@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import './animations.css';
@@ -11,8 +11,14 @@ import Footer from '../components/Footer';
 export default function Home() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const { cartCount } = useCart();
+  const { cartCount, addToCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const [products, setProducts] = useState([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const carouselRef = useRef(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const productsPerSlide = 3;
+  const totalSlides = 5; // 15 products / 3 products per slide = 5 slides
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -20,6 +26,117 @@ export default function Home() {
       router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
     }
   };
+
+  const handleAddToCart = async (e, product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const defaultVariant = product.variants?.edges[0]?.node;
+    
+    const productToAdd = {
+      id: product.id,
+      variantId: defaultVariant?.id || product.id,
+      title: product.title,
+      price: defaultVariant ? defaultVariant.price?.amount : product.priceRange.minVariantPrice.amount,
+      image: product.images.edges[0]?.node.url || null,
+      handle: product.handle,
+    };
+
+    try {
+      await addToCart(productToAdd, 1);
+    } catch (error) {
+      console.error("Add to cart error:", error);
+    }
+  };
+
+  const handleCarouselNavigation = (direction) => {
+    if (direction === 'next') {
+      setCurrentSlide((prev) => (prev + 1) % totalSlides);
+    } else {
+      setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
+    }
+  };
+
+  useEffect(() => {
+    async function fetchFeaturedProducts() {
+      try {
+        const STOREFRONT_API_URL = `https://${process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN}/api/2023-10/graphql.json`;
+        
+        const productsQuery = `
+          query getFeaturedProducts {
+            products(first: 15) {
+              edges {
+                node {
+                  id
+                  title
+                  handle
+                  description
+                  priceRange {
+                    minVariantPrice {
+                      amount
+                      currencyCode
+                    }
+                  }
+                  images(first: 1) {
+                    edges {
+                      node {
+                        url
+                        altText
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `;
+
+        const response = await fetch(STOREFRONT_API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Storefront-Access-Token': process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN
+          },
+          body: JSON.stringify({
+            query: productsQuery
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+
+        const data = await response.json();
+        
+        if (data.errors) {
+          throw new Error(data.errors[0].message);
+        }
+
+        const fetchedProducts = data.data.products.edges.map(edge => edge.node);
+        setProducts(fetchedProducts);
+      } catch (err) {
+        console.error('Error fetching products:', err);
+      }
+    }
+
+    fetchFeaturedProducts();
+  }, []);
+
+  useEffect(() => {
+    if (!isHovered) {
+      const interval = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % totalSlides);
+      }, 3000);
+
+      return () => clearInterval(interval);
+    }
+  }, [isHovered]);
+
+  useEffect(() => {
+    if (carouselRef.current) {
+      carouselRef.current.style.transform = `translateX(-${currentSlide * 100}%)`;
+    }
+  }, [currentSlide]);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -159,6 +276,100 @@ export default function Home() {
               </div>
             </div>
           </Link>
+        </div>
+      </section>
+
+      {/* Product Carousel Section */}
+      <section className="px-8 py-16 max-w-7xl mx-auto">
+        <h2 className="text-3xl font-bold mb-8 slide-in">Featured Products</h2>
+        <div 
+          className="relative"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <div className="overflow-hidden">
+            <div 
+              ref={carouselRef}
+              className="flex transition-transform duration-500 ease-in-out"
+            >
+              {Array.from({ length: totalSlides }).map((_, slideIndex) => (
+                <div key={slideIndex} className="w-full flex-shrink-0">
+                  <div className="grid grid-cols-3 gap-4 px-4">
+                    {products
+                      .slice(slideIndex * productsPerSlide, (slideIndex + 1) * productsPerSlide)
+                      .map((product) => (
+                        <div key={product.id}>
+                          <Link href={`/products/${product.handle}`}>
+                            <div className="bg-gray-900 rounded-lg overflow-hidden group">
+                              <div className="h-96 relative">
+                                {product.images.edges.length > 0 ? (
+                                  <Image
+                                    src={product.images.edges[0].node.url}
+                                    alt={product.images.edges[0].node.altText || product.title}
+                                    fill
+                                    style={{ objectFit: 'cover' }}
+                                    className="transform group-hover:scale-110 transition-transform duration-500"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                                    <p>No image available</p>
+                                  </div>
+                                )}
+                                <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                  <button 
+                                    onClick={(e) => handleAddToCart(e, product)}
+                                    className="bg-white text-black py-2 px-4 rounded-full font-medium hover:bg-gray-200 transition transform -translate-y-2 group-hover:translate-y-0"
+                                  >
+                                    Add to Cart
+                                  </button>
+                                </div>
+                              </div>
+                              <div className="p-4">
+                                <h3 className="text-lg font-semibold">{product.title}</h3>
+                                <p className="text-gray-400 mt-1 line-clamp-2">{product.description}</p>
+                                <p className="text-white font-bold mt-2">
+                                  {new Intl.NumberFormat('en-US', {
+                                    style: 'currency',
+                                    currency: product.priceRange.minVariantPrice.currencyCode,
+                                  }).format(product.priceRange.minVariantPrice.amount)}
+                                </p>
+                              </div>
+                            </div>
+                          </Link>
+                        </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <button 
+            onClick={() => handleCarouselNavigation('prev')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button 
+            onClick={() => handleCarouselNavigation('next')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+            {Array.from({ length: totalSlides }).map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  currentSlide === index ? 'bg-white' : 'bg-white/50'
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </section>
 

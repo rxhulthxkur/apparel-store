@@ -90,15 +90,16 @@ export default function Footer() {
               </a>
             </div>
             <p className="text-gray-400">
-              Email: contact@rtfashion.com<br />
-              Phone: (555) 123-4567
+              Email: 	rahul7087.ca23@chitkara.edu.in
+<br />
+              Phone: +91 7807242167
             </p>
           </div>
         </div>
         
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-          <p>© 2024 RT Fashion. All rights reserved.</p>
+          <p>© 2025 RT Fashion. All rights reserved.</p>
         </div>
       </div>
     </footer>
